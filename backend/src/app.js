@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import authRoutes from "./routes/authRoutes.js";
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
 
@@ -21,21 +23,10 @@ app.get("/api/health", (req, res) => {
      });
 });
 
-// 404 handler: runs when no route matched
-app.use((req, res) => {
-     res.status(404).json({
-          success: false,
-          message: `Route not found: ${req.method} ${req.originalUrl}`,
-     });
-});
+app.use("/api/auth", authRoutes);
 
-// Basic error handler: runs when something throws an error
-app.use((err, req, res, next) => {
-     console.error(err);
-     res.status(err.statusCode || 500).json({
-          success: false,
-          message: err.message || "Internal server error",
-     });
-});
+// These two must stay at the bottom, after all routes
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
