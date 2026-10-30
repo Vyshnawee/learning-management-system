@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
+import courseRoutes from "./routes/courseRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import curriculumRoutes from "./routes/curriculumRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
@@ -24,6 +27,10 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api", curriculumRoutes);
 
 // These two must stay at the bottom, after all routes
 app.use(notFound);
