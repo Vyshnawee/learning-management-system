@@ -1,6 +1,7 @@
 import Course from "../models/Course.js";
 import Section from "../models/Section.js";
 import Lesson from "../models/Lesson.js";
+import Quiz from "../models/Quiz.js";
 import AppError from "../utils/AppError.js";
 import pick from "../utils/pick.js";
 import {
@@ -116,6 +117,11 @@ export const deleteSection = async (req, res) => {
      );
 
      await Lesson.deleteMany({ sectionId: section._id });
+     // Quizzes attached to this section stay in the course, just not in a section
+     await Quiz.updateMany(
+          { sectionId: section._id },
+          { $set: { sectionId: null } },
+     );
      await section.deleteOne();
 
      res.status(200).json({

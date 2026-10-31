@@ -3,6 +3,7 @@ import Section from "../models/Section.js";
 import Lesson from "../models/Lesson.js";
 import Enrollment from "../models/Enrollment.js";
 import AppError from "../utils/AppError.js";
+import Quiz from "../models/Quiz.js";
 
 // Finds a course and checks the user may manage it (owner or admin)
 export const getCourseForManagement = async (courseId, user) => {
@@ -56,4 +57,14 @@ export const canAccessLessonContent = async (course, user) => {
           courseId: course._id,
      });
      return !!enrollment;
+};
+
+// Finds a quiz and checks the user owns its course (or is admin)
+export const getQuizForManagement = async (quizId, user) => {
+     const quiz = await Quiz.findById(quizId);
+     if (!quiz) {
+          throw new AppError("Quiz not found", 404);
+     }
+     const course = await getCourseForManagement(quiz.courseId, user);
+     return { quiz, course };
 };

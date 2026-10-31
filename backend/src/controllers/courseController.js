@@ -3,10 +3,13 @@ import Category from "../models/Category.js";
 import Section from "../models/Section.js";
 import Lesson from "../models/Lesson.js";
 import Enrollment from "../models/Enrollment.js";
+import Quiz from "../models/Quiz.js";
 import AppError from "../utils/AppError.js";
 import pick from "../utils/pick.js";
 import { getPagination, buildPaginationMeta } from "../utils/pagination.js";
 import { getCourseForManagement } from "../services/courseService.js";
+import QuizAttempt from "../models/QuizAttempt.js";
+import Certificate from "../models/Certificate.js";
 
 // The only fields a client is allowed to set
 const EDITABLE_FIELDS = [
@@ -161,7 +164,10 @@ export const deleteCourse = async (req, res) => {
 
      await Lesson.deleteMany({ courseId: course._id });
      await Section.deleteMany({ courseId: course._id });
+     await Quiz.deleteMany({ courseId: course._id });
      await Enrollment.deleteMany({ courseId: course._id });
+     await QuizAttempt.deleteMany({ courseId: course._id });
+     await Certificate.deleteMany({ courseId: course._id });
      // Later we will also delete this course's quizzes and enrollments
      await course.deleteOne();
 

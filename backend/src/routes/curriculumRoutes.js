@@ -7,6 +7,8 @@ import {
      createLesson,
      updateLesson,
      deleteLesson,
+     reorderSections,
+     reorderLessons,
      getLesson,
 } from "../controllers/curriculumController.js";
 import {
