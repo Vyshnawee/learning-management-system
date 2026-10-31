@@ -2,6 +2,7 @@ import Course from "../models/Course.js";
 import Category from "../models/Category.js";
 import Section from "../models/Section.js";
 import Lesson from "../models/Lesson.js";
+import Enrollment from "../models/Enrollment.js";
 import AppError from "../utils/AppError.js";
 import pick from "../utils/pick.js";
 import { getPagination, buildPaginationMeta } from "../utils/pagination.js";
@@ -160,6 +161,7 @@ export const deleteCourse = async (req, res) => {
 
      await Lesson.deleteMany({ courseId: course._id });
      await Section.deleteMany({ courseId: course._id });
+     await Enrollment.deleteMany({ courseId: course._id });
      // Later we will also delete this course's quizzes and enrollments
      await course.deleteOne();
 

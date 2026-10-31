@@ -7,6 +7,8 @@ import {
      getCourseForManagement,
      getSectionForManagement,
      getLessonForManagement,
+     isCourseManager,
+     canAccessLessonContent,
 } from "../services/courseService.js";
 import assertSameIds from "../utils/assertSameIds.js";
 
@@ -44,31 +46,30 @@ export const createSection = async (req, res) => {
 };
 
 // GET /api/courses/:courseId/sections  (curriculum: sections with their lessons)
+// GET /api/courses/:courseId/sections  (curriculum: sections with their lessons)
 export const getCurriculum = async (req, res) => {
      const course = await Course.findById(req.params.courseId);
 
-     const isManager =
-          course &&
-          req.user &&
-          (req.user.role === "admin" ||
-               course.instructorId.equals(req.user._id));
-
-     if (!course || (course.status !== "published" && !isManager)) {
+     if (
+          !course ||
+          (course.status !== "published" && !isCourseManager(course, req.user))
+     ) {
           throw new AppError("Course not found", 404);
      }
+
+     // Owner, admin, or enrolled student
+     const hasFullAccess = await canAccessLessonContent(course, req.user);
 
      const [sections, lessons] = await Promise.all([
           Section.find({ courseId: course._id }).sort({ order: 1 }).lean(),
           Lesson.find({ courseId: course._id }).sort({ order: 1 }).lean(),
      ]);
 
-     // Video links are only shown to the owner/admin, and for preview lessons.
-     // In Phase 4 we will also show them to enrolled students.
      const curriculum = sections.map((section) => {
           const sectionLessons = lessons
                .filter((lesson) => lesson.sectionId.equals(section._id))
                .map((lesson) => {
-                    if (!isManager && !lesson.isPreview) {
+                    if (!hasFullAccess && !lesson.isPreview) {
                          const { videoUrl, resources, ...safeLesson } = lesson;
                          return safeLesson;
                     }
@@ -250,5 +251,33 @@ export const reorderLessons = async (req, res) => {
           success: true,
           message: "Lessons reordered",
           data: { lessons: updated },
+     });
+};
+
+// GET /api/lessons/:lessonId  (preview lessons are public; others need enrollment)
+export const getLesson = async (req, res) => {
+     const lesson = await Lesson.findById(req.params.lessonId);
+     const course = lesson ? await Course.findById(lesson.courseId) : null;
+
+     if (
+          !lesson ||
+          !course ||
+          (course.status !== "published" && !isCourseManager(course, req.user))
+     ) {
+          throw new AppError("Lesson not found", 404);
+     }
+
+     const hasFullAccess = await canAccessLessonContent(course, req.user);
+
+     if (!hasFullAccess && !lesson.isPreview) {
+          throw new AppError(
+               "Enroll in this course to access this lesson",
+               403,
+          );
+     }
+
+     res.status(200).json({
+          success: true,
+          data: { lesson },
      });
 };

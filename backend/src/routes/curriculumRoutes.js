@@ -7,6 +7,7 @@ import {
      createLesson,
      updateLesson,
      deleteLesson,
+     getLesson,
 } from "../controllers/curriculumController.js";
 import {
      createSectionValidator,
@@ -100,6 +101,14 @@ router.patch(
      reorderLessonsValidator,
      validate,
      reorderLessons,
+);
+
+router.get(
+     "/lessons/:lessonId",
+     idParam("lessonId"),
+     validate,
+     optionalAuth,
+     getLesson,
 );
 
 export default router;

@@ -4,6 +4,7 @@ import authRoutes from "./routes/authRoutes.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import curriculumRoutes from "./routes/curriculumRoutes.js";
+import enrollmentRoutes from "./routes/enrollmentRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api", curriculumRoutes);
+app.use("/api", enrollmentRoutes);
 
 // These two must stay at the bottom, after all routes
 app.use(notFound);
