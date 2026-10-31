@@ -55,3 +55,20 @@ export const changePasswordValidator = [
                "New password must be different from the current password",
           ),
 ];
+
+export const updateProfileValidator = [
+     body("name")
+          .optional()
+          .trim()
+          .isLength({ min: 2, max: 50 })
+          .withMessage("Name must be 2 to 50 characters"),
+     body("bio")
+          .optional()
+          .trim()
+          .isLength({ max: 500 })
+          .withMessage("Bio cannot exceed 500 characters"),
+     body("profileImage")
+          .optional({ values: "falsy" })
+          .isURL()
+          .withMessage("Profile image must be a valid URL"),
+];

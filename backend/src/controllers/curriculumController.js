@@ -23,6 +23,19 @@ const LESSON_FIELDS = [
      "resources",
 ];
 
+// A published course must always keep at least one lesson
+const assertLessonsRemain = async (course, lessonsToRemove) => {
+     if (course.status !== "published") return;
+
+     const total = await Lesson.countDocuments({ courseId: course._id });
+     if (total - lessonsToRemove <= 0) {
+          throw new AppError(
+               "A published course needs at least one lesson. Unpublish the course first.",
+               400,
+          );
+     }
+};
+
 // POST /api/courses/:courseId/sections
 export const createSection = async (req, res) => {
      const course = await getCourseForManagement(req.params.courseId, req.user);
@@ -111,10 +124,15 @@ export const updateSection = async (req, res) => {
 
 // DELETE /api/sections/:sectionId  (also deletes its lessons)
 export const deleteSection = async (req, res) => {
-     const { section } = await getSectionForManagement(
+     const { section, course } = await getSectionForManagement(
           req.params.sectionId,
           req.user,
      );
+
+     const sectionLessonCount = await Lesson.countDocuments({
+          sectionId: section._id,
+     });
+     await assertLessonsRemain(course, sectionLessonCount);
 
      await Lesson.deleteMany({ sectionId: section._id });
      // Quizzes attached to this section stay in the course, just not in a section
@@ -176,11 +194,12 @@ export const updateLesson = async (req, res) => {
 
 // DELETE /api/lessons/:lessonId
 export const deleteLesson = async (req, res) => {
-     const { lesson } = await getLessonForManagement(
+     const { lesson, course } = await getLessonForManagement(
           req.params.lessonId,
           req.user,
      );
 
+     await assertLessonsRemain(course, 1);
      await lesson.deleteOne();
 
      res.status(200).json({

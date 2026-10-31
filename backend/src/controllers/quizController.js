@@ -20,6 +20,7 @@ const QUIZ_FIELDS = [
      "questions",
 ];
 const QUESTION_FIELDS = ["questionText", "options", "correctAnswer", "points"];
+const MAX_ATTEMPTS_PER_DAY = 5;
 
 // Keep only the allowed fields of each question
 const cleanQuestions = (questions) =>
@@ -184,6 +185,20 @@ export const attemptQuiz = async (req, res) => {
           throw new AppError("Enroll in this course to take this quiz", 403);
      }
 
+     // Limit attempts: stops students from guessing the answers by brute force
+     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+     const recentAttempts = await QuizAttempt.countDocuments({
+          quizId: quiz._id,
+          studentId: req.user._id,
+          attemptedAt: { $gte: since },
+     });
+     if (recentAttempts >= MAX_ATTEMPTS_PER_DAY) {
+          throw new AppError(
+               `You can attempt this quiz ${MAX_ATTEMPTS_PER_DAY} times per 24 hours. Please try again later.`,
+               429,
+          );
+     }
+
      // Build a map: questionId -> chosen option, rejecting duplicates and unknown questions
      const validIds = new Set(quiz.questions.map((q) => q._id.toString()));
      const chosen = new Map();
@@ -243,6 +258,7 @@ export const attemptQuiz = async (req, res) => {
                totalPoints,
                percentage,
                passingScore: quiz.passingScore,
+               attemptsLeftToday: MAX_ATTEMPTS_PER_DAY - recentAttempts - 1,
                passed,
                results, // which questions were right or wrong; correct answers are not revealed
           },

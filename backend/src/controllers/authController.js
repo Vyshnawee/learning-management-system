@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import AppError from "../utils/AppError.js";
 import generateToken from "../utils/generateToken.js";
+import pick from "../utils/pick.js";
 
 // POST /api/auth/register
 export const register = async (req, res) => {
@@ -79,5 +80,22 @@ export const changePassword = async (req, res) => {
      res.status(200).json({
           success: true,
           message: "Password changed successfully",
+     });
+};
+
+// PATCH /api/auth/me
+export const updateProfile = async (req, res) => {
+     const updates = pick(req.body, ["name", "bio", "profileImage"]);
+
+     // An empty string clears the image
+     if (req.body?.profileImage === "") updates.profileImage = "";
+
+     req.user.set(updates);
+     await req.user.save();
+
+     res.status(200).json({
+          success: true,
+          message: "Profile updated",
+          data: { user: req.user },
      });
 };

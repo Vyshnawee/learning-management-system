@@ -10,6 +10,7 @@ import certificateRoutes from "./routes/certificateRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use("/api", quizRoutes);
 app.use("/api", certificateRoutes);
 app.use("/api", reviewRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api", analyticsRoutes);
 
 // These two must stay at the bottom, after all routes
 app.use(notFound);
