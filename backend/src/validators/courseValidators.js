@@ -130,7 +130,14 @@ export const listCoursesValidator = [
      query("level").optional().isIn(levels).withMessage("Invalid level"),
      query("sort")
           .optional()
-          .isIn(["newest", "oldest", "price_asc", "price_desc", "title"])
+          .isIn([
+               "newest",
+               "oldest",
+               "price_asc",
+               "price_desc",
+               "title",
+               "rating",
+          ])
           .withMessage("Invalid sort option"),
 ];
 

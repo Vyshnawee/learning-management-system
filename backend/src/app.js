@@ -8,6 +8,8 @@ import enrollmentRoutes from "./routes/enrollmentRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
 import certificateRoutes from "./routes/certificateRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
 
@@ -37,6 +39,8 @@ app.use("/api", curriculumRoutes);
 app.use("/api", enrollmentRoutes);
 app.use("/api", quizRoutes);
 app.use("/api", certificateRoutes);
+app.use("/api", reviewRoutes);
+app.use("/api/admin", adminRoutes);
 
 // These two must stay at the bottom, after all routes
 app.use(notFound);

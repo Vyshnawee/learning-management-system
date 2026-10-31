@@ -74,10 +74,22 @@ const courseSchema = new mongoose.Schema(
           publishedAt: {
                type: Date,
           },
+          ratingAverage: {
+               type: Number,
+               min: 0,
+               max: 5,
+               default: 0,
+          },
+          ratingCount: {
+               type: Number,
+               min: 0,
+               default: 0,
+          },
      },
      { timestamps: true },
 );
 
+courseSchema.index({ status: 1, ratingAverage: -1 });
 // Create a unique slug from the title when the course is first created
 courseSchema.pre("validate", function () {
      if (this.isNew && this.title) {

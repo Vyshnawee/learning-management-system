@@ -10,6 +10,7 @@ import { getPagination, buildPaginationMeta } from "../utils/pagination.js";
 import { getCourseForManagement } from "../services/courseService.js";
 import QuizAttempt from "../models/QuizAttempt.js";
 import Certificate from "../models/Certificate.js";
+import Review from "../models/Review.js";
 
 // The only fields a client is allowed to set
 const EDITABLE_FIELDS = [
@@ -30,6 +31,7 @@ const SORT_OPTIONS = {
      price_asc: { price: 1 },
      price_desc: { price: -1 },
      title: { title: 1 },
+     rating: { ratingAverage: -1, ratingCount: -1 },
 };
 
 const populateOptions = [
@@ -168,6 +170,7 @@ export const deleteCourse = async (req, res) => {
      await Enrollment.deleteMany({ courseId: course._id });
      await QuizAttempt.deleteMany({ courseId: course._id });
      await Certificate.deleteMany({ courseId: course._id });
+     await Review.deleteMany({ courseId: course._id });
      // Later we will also delete this course's quizzes and enrollments
      await course.deleteOne();
 
