@@ -50,6 +50,12 @@ export const errorHandler = (err, req, res, next) => {
      }
 
      // Malformed JSON in the request body
+     // Request body too large
+     if (err.type === "entity.too.large") {
+          statusCode = 413;
+          message = "Request body is too large";
+     }
+
      if (err.type === "entity.parse.failed") {
           statusCode = 400;
           message = "Invalid JSON in request body";
