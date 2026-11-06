@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import AuthLayout from "../../components/layout/AuthLayout.jsx";
 import Input from "../../components/common/Input.jsx";
 import Button from "../../components/common/Button.jsx";
@@ -10,20 +10,26 @@ import {
      getFieldErrors,
 } from "../../utils/getErrorMessage.js";
 import { isValidEmail } from "../../utils/validators.js";
+import { canVisit, getDashboardPath } from "../../utils/roles.js";
 
 export default function LoginPage() {
      const { user, login } = useAuth();
-     const navigate = useNavigate();
      const location = useLocation();
-     const redirectTo = location.state?.from?.pathname || "/";
+     const from = location.state?.from?.pathname;
 
      const [form, setForm] = useState({ email: "", password: "" });
      const [fieldErrors, setFieldErrors] = useState({});
      const [formError, setFormError] = useState("");
      const [submitting, setSubmitting] = useState(false);
 
-     // Already logged in: nothing to do here
-     if (user) return <Navigate to="/" replace />;
+     // Already logged in (or just logged in): go back where you came from, or to your dashboard
+     if (user) {
+          const target =
+               from && canVisit(from, user.role)
+                    ? from
+                    : getDashboardPath(user.role);
+          return <Navigate to={target} replace />;
+     }
 
      const handleChange = (event) => {
           const { name, value } = event.target;
@@ -48,7 +54,6 @@ export default function LoginPage() {
                     email: form.email.trim(),
                     password: form.password,
                });
-               navigate(redirectTo, { replace: true });
           } catch (error) {
                setFormError(getErrorMessage(error));
                setFieldErrors(getFieldErrors(error));

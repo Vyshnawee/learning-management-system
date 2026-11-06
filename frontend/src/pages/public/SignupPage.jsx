@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import AuthLayout from "../../components/layout/AuthLayout.jsx";
 import Input from "../../components/common/Input.jsx";
 import Button from "../../components/common/Button.jsx";
@@ -10,6 +10,7 @@ import {
      getFieldErrors,
 } from "../../utils/getErrorMessage.js";
 import { getPasswordError, isValidEmail } from "../../utils/validators.js";
+import { getDashboardPath } from "../../utils/roles.js";
 
 const roles = [
      { value: "student", label: "Student", text: "I want to learn" },
@@ -18,7 +19,6 @@ const roles = [
 
 export default function SignupPage() {
      const { user, register } = useAuth();
-     const navigate = useNavigate();
 
      const [form, setForm] = useState({
           name: "",
@@ -30,7 +30,8 @@ export default function SignupPage() {
      const [formError, setFormError] = useState("");
      const [submitting, setSubmitting] = useState(false);
 
-     if (user) return <Navigate to="/" replace />;
+     // Already logged in (or just registered): go to your dashboard
+     if (user) return <Navigate to={getDashboardPath(user.role)} replace />;
 
      const handleChange = (event) => {
           const { name, value } = event.target;
@@ -61,7 +62,6 @@ export default function SignupPage() {
                     password: form.password,
                     role: form.role,
                });
-               navigate("/", { replace: true });
           } catch (error) {
                setFormError(getErrorMessage(error));
                setFieldErrors(getFieldErrors(error));

@@ -2,6 +2,12 @@ import { Link } from "react-router-dom";
 import Logo from "../../components/common/Logo.jsx";
 import Button from "../../components/common/Button.jsx";
 import { useAuth } from "../../hooks/useAuth.js";
+import { getDashboardPath } from "../../utils/roles.js";
+
+const primaryLink =
+     "inline-flex min-h-11 items-center rounded-lg bg-primary px-4 font-semibold text-on-primary hover:bg-primary-container";
+const secondaryLink =
+     "inline-flex min-h-11 items-center rounded-lg border border-outline-variant px-4 font-semibold hover:bg-surface-high";
 
 export default function HomePage() {
      const { user, loading, logout } = useAuth();
@@ -23,12 +29,20 @@ export default function HomePage() {
                                    You are logged in as{" "}
                                    <span className="font-semibold text-primary">
                                         {user.role}
-                                   </span>{" "}
-                                   ({user.email}).
+                                   </span>
+                                   .
                               </p>
-                              <Button variant="secondary" onClick={logout}>
-                                   Log out
-                              </Button>
+                              <div className="flex flex-wrap gap-3">
+                                   <Link
+                                        to={getDashboardPath(user.role)}
+                                        className={primaryLink}
+                                   >
+                                        Go to dashboard
+                                   </Link>
+                                   <Button variant="secondary" onClick={logout}>
+                                        Log out
+                                   </Button>
+                              </div>
                          </>
                     ) : (
                          <>
@@ -39,16 +53,10 @@ export default function HomePage() {
                                    Log in or create an account to continue.
                               </p>
                               <div className="flex gap-3">
-                                   <Link
-                                        to="/login"
-                                        className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 font-semibold text-on-primary hover:bg-primary-container"
-                                   >
+                                   <Link to="/login" className={primaryLink}>
                                         Log in
                                    </Link>
-                                   <Link
-                                        to="/signup"
-                                        className="inline-flex min-h-11 items-center rounded-lg border border-outline-variant px-4 font-semibold hover:bg-surface-high"
-                                   >
+                                   <Link to="/signup" className={secondaryLink}>
                                         Sign up
                                    </Link>
                               </div>

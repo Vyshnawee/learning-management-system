@@ -68,3 +68,23 @@ export const getQuizForManagement = async (quizId, user) => {
      const course = await getCourseForManagement(quiz.courseId, user);
      return { quiz, course };
 };
+
+// Adds lessonCount to each course. Expects plain objects (use .lean() on the query).
+export const attachLessonCounts = async (courses) => {
+     if (courses.length === 0) return courses;
+
+     const counts = await Lesson.aggregate([
+          {
+               $match: {
+                    courseId: { $in: courses.map((course) => course._id) },
+               },
+          },
+          { $group: { _id: "$courseId", count: { $sum: 1 } } },
+     ]);
+
+     const countMap = new Map(counts.map((c) => [String(c._id), c.count]));
+     return courses.map((course) => ({
+          ...course,
+          lessonCount: countMap.get(String(course._id)) || 0,
+     }));
+};

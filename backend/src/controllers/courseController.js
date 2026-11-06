@@ -7,7 +7,10 @@ import Quiz from "../models/Quiz.js";
 import AppError from "../utils/AppError.js";
 import pick from "../utils/pick.js";
 import { getPagination, buildPaginationMeta } from "../utils/pagination.js";
-import { getCourseForManagement } from "../services/courseService.js";
+import {
+     getCourseForManagement,
+     attachLessonCounts,
+} from "../services/courseService.js";
 import QuizAttempt from "../models/QuizAttempt.js";
 import Certificate from "../models/Certificate.js";
 import Review from "../models/Review.js";
@@ -79,13 +82,14 @@ export const getCourses = async (req, res) => {
                .populate(populateOptions)
                .sort(sortBy)
                .skip(skip)
-               .limit(limit),
+               .limit(limit)
+               .lean(),
           Course.countDocuments(filter),
      ]);
 
      res.status(200).json({
           success: true,
-          data: { courses },
+          data: { courses: await attachLessonCounts(courses) },
           pagination: buildPaginationMeta(total, page, limit),
      });
 };
