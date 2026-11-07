@@ -198,3 +198,30 @@ export const updateProgress = async (req, res) => {
           },
      });
 };
+
+// PATCH /api/enrollments/:enrollmentId/last-lesson  (the enrolled student only)
+// Body: { "lessonId": "..." }. Remembers which lesson the student opened last.
+export const setLastLesson = async (req, res) => {
+     const enrollment = await Enrollment.findById(req.params.enrollmentId);
+
+     // 404 for someone else's enrollment, so we don't reveal that it exists
+     if (!enrollment || !enrollment.studentId.equals(req.user._id)) {
+          throw new AppError("Enrollment not found", 404);
+     }
+
+     // The lesson must belong to the course of this enrollment
+     const lessonExists = await Lesson.exists({
+          _id: req.body.lessonId,
+          courseId: enrollment.courseId,
+     });
+     if (!lessonExists) {
+          throw new AppError("Lesson not found in this course", 404);
+     }
+
+     await Enrollment.updateOne(
+          { _id: enrollment._id },
+          { $set: { lastAccessedLessonId: req.body.lessonId } },
+     );
+
+     res.status(200).json({ success: true, message: "Last lesson saved" });
+};

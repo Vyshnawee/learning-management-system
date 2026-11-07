@@ -8,3 +8,7 @@ export const progressValidator = [
           .withMessage("completed must be true or false")
           .toBoolean(),
 ];
+
+export const lastLessonValidator = [
+     body("lessonId").isMongoId().withMessage("A valid lessonId is required"),
+];

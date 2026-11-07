@@ -5,3 +5,14 @@ export const enrollInCourse = (courseId) =>
 
 export const getMyEnrollments = (params, signal) =>
      axiosClient.get("/enrollments/my-courses", { params, signal });
+
+export const getEnrollment = (enrollmentId, signal) =>
+     axiosClient.get(`/enrollments/${enrollmentId}`, { signal });
+
+export const updateProgress = (enrollmentId, data) =>
+     axiosClient.patch(`/enrollments/${enrollmentId}/progress`, data);
+
+export const setLastLesson = (enrollmentId, lessonId) =>
+     axiosClient.patch(`/enrollments/${enrollmentId}/last-lesson`, {
+          lessonId,
+     });

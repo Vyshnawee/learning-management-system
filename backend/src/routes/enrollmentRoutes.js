@@ -5,9 +5,13 @@ import {
      getCourseEnrollments,
      getEnrollment,
      updateProgress,
+     setLastLesson,
 } from "../controllers/enrollmentController.js";
+import {
+     progressValidator,
+     lastLessonValidator,
+} from "../validators/enrollmentValidators.js";
 import { idParam } from "../validators/commonValidators.js";
-import { progressValidator } from "../validators/enrollmentValidators.js";
 import validate from "../middleware/validate.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
@@ -55,6 +59,16 @@ router.patch(
      progressValidator,
      validate,
      updateProgress,
+);
+
+router.patch(
+     "/enrollments/:enrollmentId/last-lesson",
+     protect,
+     authorize("student"),
+     idParam("enrollmentId"),
+     lastLessonValidator,
+     validate,
+     setLastLesson,
 );
 
 export default router;
