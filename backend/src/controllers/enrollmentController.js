@@ -53,7 +53,6 @@ export const getMyEnrollments = async (req, res) => {
 
      const [enrollments, total] = await Promise.all([
           Enrollment.find(filter)
-               .select("-completedLessonIds")
                .populate({
                     path: "courseId",
                     select: "title slug shortDescription thumbnail level status instructorId",
@@ -62,15 +61,42 @@ export const getMyEnrollments = async (req, res) => {
                          select: "name profileImage",
                     },
                })
-               .sort({ enrolledAt: -1 })
+               .populate({ path: "lastAccessedLessonId", select: "title" })
+               .sort({ updatedAt: -1, _id: 1 }) // most recently studied first
                .skip(skip)
-               .limit(limit),
+               .limit(limit)
+               .lean(),
           Enrollment.countDocuments(filter),
      ]);
 
+     // Lesson IDs of every course on this page, grouped by course (one query)
+     const courseIds = enrollments.map((e) => e.courseId?._id).filter(Boolean);
+     const lessons = await Lesson.find({ courseId: { $in: courseIds } })
+          .select("_id courseId")
+          .lean();
+
+     const lessonIdsByCourse = new Map();
+     lessons.forEach((lesson) => {
+          const key = String(lesson.courseId);
+          if (!lessonIdsByCourse.has(key))
+               lessonIdsByCourse.set(key, new Set());
+          lessonIdsByCourse.get(key).add(String(lesson._id));
+     });
+
+     // Add lessonCount and completedCount, and drop the long list of completed IDs
+     const result = enrollments.map(({ completedLessonIds, ...enrollment }) => {
+          const ids =
+               lessonIdsByCourse.get(String(enrollment.courseId?._id)) ||
+               new Set();
+          const completedCount = completedLessonIds.filter((id) =>
+               ids.has(String(id)),
+          ).length;
+          return { ...enrollment, lessonCount: ids.size, completedCount };
+     });
+
      res.status(200).json({
           success: true,
-          data: { enrollments },
+          data: { enrollments: result },
           pagination: buildPaginationMeta(total, page, limit),
      });
 };

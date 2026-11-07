@@ -9,6 +9,9 @@ import SignupPage from "../pages/public/SignupPage.jsx";
 import ForbiddenPage from "../pages/public/ForbiddenPage.jsx";
 import NotFoundPage from "../pages/public/NotFoundPage.jsx";
 import ComingSoonPage from "../pages/shared/ComingSoonPage.jsx";
+import StudentDashboardPage from "../pages/student/StudentDashboardPage.jsx";
+import MyCoursesPage from "../pages/student/MyCoursesPage.jsx";
+import CourseDetailsPage from "../pages/public/CourseDetailsPage.jsx";
 
 export default function AppRoutes() {
      return (
@@ -18,7 +21,7 @@ export default function AppRoutes() {
                     <Route path="/courses" element={<CatalogPage />} />
                     <Route
                          path="/courses/:courseId"
-                         element={<ComingSoonPage title="Course details" />}
+                         element={<CourseDetailsPage />}
                     />
                </Route>
 
@@ -39,13 +42,11 @@ export default function AppRoutes() {
                          />
                          <Route
                               path="/student/dashboard"
-                              element={
-                                   <ComingSoonPage title="Student dashboard" />
-                              }
+                              element={<StudentDashboardPage />}
                          />
                          <Route
                               path="/student/courses"
-                              element={<ComingSoonPage title="My courses" />}
+                              element={<MyCoursesPage />}
                          />
                          <Route
                               path="/student/certificates"
@@ -58,6 +59,10 @@ export default function AppRoutes() {
                               element={<ComingSoonPage title="Profile" />}
                          />
                     </Route>
+                    <Route
+                         path="/student/learn/:courseId"
+                         element={<ComingSoonPage title="Learning page" />}
+                    />
                </Route>
 
                {/* Instructor */}

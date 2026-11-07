@@ -118,25 +118,55 @@ export const getMyCourses = async (req, res) => {
 };
 
 // GET /api/courses/:courseId  (public if published; drafts only for owner/admin)
+// GET /api/courses/:courseId  (public if published; drafts only for owner/admin)
 export const getCourse = async (req, res) => {
      const course = await Course.findById(req.params.courseId);
 
-     const canSeeDraft =
+     // Work this out before populate(), while instructorId is still a plain ID
+     const canManage = Boolean(
           course &&
           req.user &&
           (req.user.role === "admin" ||
-               course.instructorId.equals(req.user._id));
+               course.instructorId.equals(req.user._id)),
+     );
 
      // Return 404 (not 403) so we don't reveal that a draft exists
-     if (!course || (course.status !== "published" && !canSeeDraft)) {
+     if (!course || (course.status !== "published" && !canManage)) {
           throw new AppError("Course not found", 404);
      }
 
      await course.populate(populateOptions);
 
+     const [enrollmentCount, breakdownRows, myEnrollment] = await Promise.all([
+          Enrollment.countDocuments({ courseId: course._id }),
+          Review.aggregate([
+               { $match: { courseId: course._id } },
+               { $group: { _id: "$rating", count: { $sum: 1 } } },
+          ]),
+          req.user?.role === "student"
+               ? Enrollment.findOne({
+                      studentId: req.user._id,
+                      courseId: course._id,
+                 }).select("_id")
+               : null,
+     ]);
+
+     const ratingBreakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+     breakdownRows.forEach((row) => {
+          ratingBreakdown[row._id] = row.count;
+     });
+
      res.status(200).json({
           success: true,
-          data: { course },
+          data: {
+               course,
+               stats: { enrollmentCount, ratingBreakdown },
+               viewer: {
+                    canManage,
+                    isEnrolled: Boolean(myEnrollment),
+                    enrollmentId: myEnrollment ? myEnrollment._id : null,
+               },
+          },
      });
 };
 

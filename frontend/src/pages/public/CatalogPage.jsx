@@ -9,6 +9,7 @@ import EmptyState from "../../components/common/EmptyState.jsx";
 import Pagination from "../../components/common/Pagination.jsx";
 import Button from "../../components/common/Button.jsx";
 import { getErrorMessage } from "../../utils/getErrorMessage.js";
+import CourseDetailsPage from "./CourseDetailsPage.jsx";
 
 const PAGE_SIZE = 9;
 
