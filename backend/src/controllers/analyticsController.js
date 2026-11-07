@@ -103,23 +103,27 @@ export const getCourseAnalytics = async (req, res) => {
 
 // GET /api/instructor/dashboard  (instructor)
 export const getInstructorDashboard = async (req, res) => {
-     const courses = await Course.find({ instructorId: req.user._id }).select(
-          "title status ratingAverage ratingCount",
-     );
-     const courseIds = courses.map((c) => c._id);
+     const courses = await Course.find({ instructorId: req.user._id })
+          .select(
+               "title status level thumbnail ratingAverage ratingCount updatedAt",
+          )
+          .sort({ updatedAt: -1 })
+          .lean();
+     const courseIds = courses.map((course) => course._id);
 
-     const [totals, perCourse] = await Promise.all([
-          Enrollment.aggregate([
-               { $match: { courseId: { $in: courseIds } } },
-               {
-                    $group: {
-                         _id: null,
-                         enrollments: { $sum: 1 },
-                         completed: completedExpr,
-                         students: { $addToSet: "$studentId" },
-                    },
-               },
-          ]),
+     // The last 6 months including this one, as "YYYY-MM" (UTC)
+     const now = new Date();
+     const months = Array.from({ length: 6 }, (_, i) => {
+          const d = new Date(
+               Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5 + i, 1),
+          );
+          return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+     });
+     const since = new Date(
+          Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1),
+     );
+
+     const [perCourse, lessonCounts, monthly, students] = await Promise.all([
           Enrollment.aggregate([
                { $match: { courseId: { $in: courseIds } } },
                {
@@ -130,14 +134,50 @@ export const getInstructorDashboard = async (req, res) => {
                     },
                },
           ]),
+          Lesson.aggregate([
+               { $match: { courseId: { $in: courseIds } } },
+               { $group: { _id: "$courseId", count: { $sum: 1 } } },
+          ]),
+          Enrollment.aggregate([
+               {
+                    $match: {
+                         courseId: { $in: courseIds },
+                         enrolledAt: { $gte: since },
+                    },
+               },
+               {
+                    $group: {
+                         _id: {
+                              $dateToString: {
+                                   format: "%Y-%m",
+                                   date: "$enrolledAt",
+                              },
+                         },
+                         count: { $sum: 1 },
+                    },
+               },
+          ]),
+          Enrollment.distinct("studentId", { courseId: { $in: courseIds } }),
      ]);
 
-     const summary = totals[0] || {
-          enrollments: 0,
-          completed: 0,
-          students: [],
-     };
-     const perCourseMap = new Map(perCourse.map((p) => [String(p._id), p]));
+     const enrollmentMap = new Map(perCourse.map((p) => [String(p._id), p]));
+     const lessonMap = new Map(
+          lessonCounts.map((l) => [String(l._id), l.count]),
+     );
+     const monthMap = new Map(monthly.map((m) => [m._id, m.count]));
+
+     const totalEnrollments = perCourse.reduce(
+          (sum, p) => sum + p.enrollments,
+          0,
+     );
+     const totalCompleted = perCourse.reduce((sum, p) => sum + p.completed, 0);
+
+     // Overall rating, weighted by how many reviews each course has
+     const ratingCount = courses.reduce((sum, c) => sum + c.ratingCount, 0);
+     const ratingSum = courses.reduce(
+          (sum, c) => sum + c.ratingAverage * c.ratingCount,
+          0,
+     );
 
      res.status(200).json({
           success: true,
@@ -147,20 +187,44 @@ export const getInstructorDashboard = async (req, res) => {
                     published: courses.filter((c) => c.status === "published")
                          .length,
                     draft: courses.filter((c) => c.status === "draft").length,
+                    archived: courses.filter((c) => c.status === "archived")
+                         .length,
                },
-               totalEnrollments: summary.enrollments,
-               uniqueStudents: summary.students.length,
-               totalCompleted: summary.completed,
-               perCourse: courses.map((c) => {
-                    const p = perCourseMap.get(String(c._id));
+               totalEnrollments,
+               uniqueStudents: students.length,
+               totalCompleted,
+               completionRate: totalEnrollments
+                    ? Math.floor((totalCompleted / totalEnrollments) * 100)
+                    : 0,
+               rating: {
+                    average: ratingCount
+                         ? Math.round((ratingSum / ratingCount) * 10) / 10
+                         : 0,
+                    count: ratingCount,
+               },
+               monthlyEnrollments: months.map((month) => ({
+                    month,
+                    count: monthMap.get(month) || 0,
+               })),
+               perCourse: courses.map((course) => {
+                    const stats = enrollmentMap.get(String(course._id));
+                    const enrollments = stats ? stats.enrollments : 0;
+                    const completed = stats ? stats.completed : 0;
                     return {
-                         courseId: c._id,
-                         title: c.title,
-                         status: c.status,
-                         enrollments: p ? p.enrollments : 0,
-                         completed: p ? p.completed : 0,
-                         ratingAverage: c.ratingAverage,
-                         ratingCount: c.ratingCount,
+                         courseId: course._id,
+                         title: course.title,
+                         status: course.status,
+                         level: course.level,
+                         thumbnail: course.thumbnail,
+                         lessonCount: lessonMap.get(String(course._id)) || 0,
+                         enrollments,
+                         completed,
+                         completionRate: enrollments
+                              ? Math.floor((completed / enrollments) * 100)
+                              : null,
+                         ratingAverage: course.ratingAverage,
+                         ratingCount: course.ratingCount,
+                         updatedAt: course.updatedAt,
                     };
                }),
           },

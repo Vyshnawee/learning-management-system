@@ -20,6 +20,11 @@ import QuizPage from "../pages/student/QuizPage.jsx";
 import MyCertificatesPage from "../pages/student/MyCertificatesPage.jsx";
 import CertificatePage from "../pages/public/CertificatePage.jsx";
 
+import InstructorDashboardPage from "../pages/instructor/InstructorDashboardPage.jsx";
+import InstructorCoursesPage from "../pages/instructor/InstructorCoursesPage.jsx";
+import CreateCoursePage from "../pages/instructor/CreateCoursePage.jsx";
+import EditCoursePage from "../pages/instructor/EditCoursePage.jsx";
+
 export default function AppRoutes() {
      return (
           <Routes>
@@ -74,12 +79,6 @@ export default function AppRoutes() {
                          />
                     </Route>
 
-                    {/* Student routes without dashboard sidebar */}
-                    {/* <Route
-                         path="/student/quizzes/:quizId"
-                         element={<ComingSoonPage title="Quiz" />}
-                    /> */}
-
                     <Route
                          path="/student/learn/:courseId/:lessonId?"
                          element={<LearningPage />}
@@ -107,19 +106,26 @@ export default function AppRoutes() {
 
                          <Route
                               path="/instructor/dashboard"
-                              element={
-                                   <ComingSoonPage title="Instructor dashboard" />
-                              }
+                              element={<InstructorDashboardPage />}
                          />
-
                          <Route
                               path="/instructor/courses"
-                              element={<ComingSoonPage title="My courses" />}
+                              element={<InstructorCoursesPage />}
                          />
 
                          <Route
                               path="/instructor/courses/new"
-                              element={<ComingSoonPage title="Create course" />}
+                              element={<CreateCoursePage />}
+                         />
+                         <Route
+                              path="/instructor/courses/:courseId/edit"
+                              element={<EditCoursePage />}
+                         />
+                         <Route
+                              path="/instructor/courses/:courseId/curriculum"
+                              element={
+                                   <ComingSoonPage title="Sections and lessons" />
+                              }
                          />
 
                          <Route
