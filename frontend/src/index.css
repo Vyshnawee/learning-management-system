@@ -47,3 +47,19 @@
           letter-spacing: -0.02em;
      }
 }
+
+/* Printing: certificates print on a white landscape page, with their colors kept */
+.print-exact {
+     -webkit-print-color-adjust: exact;
+     print-color-adjust: exact;
+}
+
+@media print {
+     @page {
+          size: landscape;
+          margin: 10mm;
+     }
+     body {
+          background: #ffffff;
+     }
+}

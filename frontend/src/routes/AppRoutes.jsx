@@ -16,6 +16,9 @@ import ComingSoonPage from "../pages/shared/ComingSoonPage.jsx";
 import StudentDashboardPage from "../pages/student/StudentDashboardPage.jsx";
 import MyCoursesPage from "../pages/student/MyCoursesPage.jsx";
 import LearningPage from "../pages/student/LearningPage.jsx";
+import QuizPage from "../pages/student/QuizPage.jsx";
+import MyCertificatesPage from "../pages/student/MyCertificatesPage.jsx";
+import CertificatePage from "../pages/public/CertificatePage.jsx";
 
 export default function AppRoutes() {
      return (
@@ -34,6 +37,10 @@ export default function AppRoutes() {
                <Route path="/login" element={<LoginPage />} />
                <Route path="/signup" element={<SignupPage />} />
                <Route path="/403" element={<ForbiddenPage />} />
+               <Route
+                    path="/certificates/:certificateId"
+                    element={<CertificatePage />}
+               />
 
                {/* Student protected routes */}
                <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
@@ -58,9 +65,7 @@ export default function AppRoutes() {
 
                          <Route
                               path="/student/certificates"
-                              element={
-                                   <ComingSoonPage title="My certificates" />
-                              }
+                              element={<MyCertificatesPage />}
                          />
 
                          <Route
@@ -70,14 +75,18 @@ export default function AppRoutes() {
                     </Route>
 
                     {/* Student routes without dashboard sidebar */}
-                    <Route
+                    {/* <Route
                          path="/student/quizzes/:quizId"
                          element={<ComingSoonPage title="Quiz" />}
-                    />
+                    /> */}
 
                     <Route
                          path="/student/learn/:courseId/:lessonId?"
                          element={<LearningPage />}
+                    />
+                    <Route
+                         path="/student/quizzes/:quizId"
+                         element={<QuizPage />}
                     />
                </Route>
 

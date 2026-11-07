@@ -2,6 +2,7 @@ import express from "express";
 import {
      createReview,
      getCourseReviews,
+     getMyReview,
      updateReview,
      deleteReview,
 } from "../controllers/reviewController.js";
@@ -30,6 +31,15 @@ router.get(
      idParam("courseId"),
      validate,
      getCourseReviews,
+);
+
+router.get(
+     "/courses/:courseId/reviews/mine",
+     protect,
+     authorize("student"),
+     idParam("courseId"),
+     validate,
+     getMyReview,
 );
 
 router.patch(

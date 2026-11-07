@@ -24,6 +24,7 @@ import Button from "../../components/common/Button.jsx";
 import Alert from "../../components/common/Alert.jsx";
 import VideoPlayer from "../../components/course/VideoPlayer.jsx";
 import LessonSidebar from "../../components/course/LessonSidebar.jsx";
+import CertificatePrompt from "../../components/course/CertificatePrompt.jsx";
 import { getErrorMessage } from "../../utils/getErrorMessage.js";
 import { formatDuration } from "../../utils/format.js";
 
@@ -377,21 +378,7 @@ export default function LearningPage() {
                                    <Alert>{markError}</Alert>
                               </div>
                          )}
-
-                         {allDone && (
-                              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-secondary/40 bg-secondary/10 p-4">
-                                   <p className="font-semibold text-secondary">
-                                        You&apos;ve completed every lesson in
-                                        this course. Great work!
-                                   </p>
-                                   <Link
-                                        to="/student/courses"
-                                        className="text-sm font-semibold text-primary hover:underline"
-                                   >
-                                        Back to my courses
-                                   </Link>
-                              </div>
-                         )}
+                         {allDone && <CertificatePrompt courseId={courseId} />}
                     </div>
 
                     {/* 2. Course content. On phones it sits right under the video. */}

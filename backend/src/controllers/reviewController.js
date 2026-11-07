@@ -128,3 +128,16 @@ export const deleteReview = async (req, res) => {
           message: "Review deleted",
      });
 };
+
+// GET /api/courses/:courseId/reviews/mine  (the student's own review, or null)
+export const getMyReview = async (req, res) => {
+     const review = await Review.findOne({
+          courseId: req.params.courseId,
+          studentId: req.user._id,
+     });
+
+     res.status(200).json({
+          success: true,
+          data: { review },
+     });
+};

@@ -9,6 +9,7 @@ import Button from "../../components/common/Button.jsx";
 import CurriculumAccordion from "../../components/course/CurriculumAccordion.jsx";
 import EnrollCard from "../../components/course/EnrollCard.jsx";
 import ReviewsSection from "../../components/course/ReviewsSection.jsx";
+import ReviewForm from "../../components/course/ReviewForm.jsx";
 import { getErrorMessage } from "../../utils/getErrorMessage.js";
 
 const LEVELS = {
@@ -45,6 +46,7 @@ export default function CourseDetailsPage() {
      const [status, setStatus] = useState("loading"); // loading | success | notfound | error
      const [errorMessage, setErrorMessage] = useState("");
      const [reloadKey, setReloadKey] = useState(0);
+     const [reviewsVersion, setReviewsVersion] = useState(0);
 
      useEffect(() => {
           const controller = new AbortController();
@@ -93,6 +95,21 @@ export default function CourseDetailsPage() {
                     enrollmentCount: current.stats.enrollmentCount + 1,
                },
           }));
+     };
+
+     // After a review is added, edited or deleted: refresh the average and the review list
+     const handleReviewChanged = async () => {
+          try {
+               const res = await getCourse(courseId);
+               setData((current) => ({
+                    ...current,
+                    course: res.data.course,
+                    stats: res.data.stats,
+               }));
+          } catch {
+               // If this fails, the old numbers stay until the next page load
+          }
+          setReviewsVersion((version) => version + 1);
      };
 
      if (status === "loading") return <PageSkeleton />;
@@ -358,11 +375,19 @@ export default function CourseDetailsPage() {
                               </div>
                          </section>
 
+                         {viewer.isEnrolled && (
+                              <ReviewForm
+                                   courseId={course._id}
+                                   onChanged={handleReviewChanged}
+                              />
+                         )}
+
                          <ReviewsSection
                               courseId={course._id}
                               ratingAverage={course.ratingAverage}
                               ratingCount={course.ratingCount}
                               breakdown={stats.ratingBreakdown}
+                              refreshKey={reviewsVersion}
                          />
                     </div>
                </div>

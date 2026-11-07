@@ -16,6 +16,7 @@ export default function ReviewsSection({
      ratingAverage,
      ratingCount,
      breakdown,
+     refreshKey = 0,
 }) {
      const [reviews, setReviews] = useState([]);
      const [page, setPage] = useState(1);
@@ -23,6 +24,11 @@ export default function ReviewsSection({
      const [status, setStatus] = useState("loading"); // loading | success | error
      const [errorMessage, setErrorMessage] = useState("");
      const [retryKey, setRetryKey] = useState(0);
+
+     // When a review changes, start again from the first page
+     useEffect(() => {
+          setPage(1);
+     }, [refreshKey]);
 
      useEffect(() => {
           const controller = new AbortController();
@@ -50,7 +56,7 @@ export default function ReviewsSection({
                });
 
           return () => controller.abort();
-     }, [courseId, page, retryKey]);
+     }, [courseId, page, retryKey, refreshKey]);
 
      return (
           <section aria-labelledby="reviews-heading">
@@ -114,14 +120,12 @@ export default function ReviewsSection({
                     </div>
                )}
 
-               {status !== "error" &&
-                    reviews.length === 0 &&
-                    status === "loading" && (
-                         <div
-                              className="h-24 animate-pulse rounded-xl bg-surface-low"
-                              aria-hidden="true"
-                         />
-                    )}
+               {status === "loading" && reviews.length === 0 && (
+                    <div
+                         className="h-24 animate-pulse rounded-xl bg-surface-low"
+                         aria-hidden="true"
+                    />
+               )}
 
                {status === "success" && reviews.length === 0 && (
                     <EmptyState

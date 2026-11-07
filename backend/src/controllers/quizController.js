@@ -274,6 +274,12 @@ export const getMyQuizResults = async (req, res) => {
           .select("-answers")
           .sort({ attemptedAt: -1 });
 
+     // Attempts in the last 24 hours count against the daily limit
+     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+     const recentCount = attempts.filter(
+          (attempt) => attempt.attemptedAt >= since,
+     ).length;
+
      res.status(200).json({
           success: true,
           data: {
@@ -284,6 +290,11 @@ export const getMyQuizResults = async (req, res) => {
                     0,
                ),
                hasPassed: attempts.some((a) => a.passed),
+               maxAttemptsPerDay: MAX_ATTEMPTS_PER_DAY,
+               attemptsLeftToday: Math.max(
+                    MAX_ATTEMPTS_PER_DAY - recentCount,
+                    0,
+               ),
           },
      });
 };
