@@ -41,6 +41,7 @@ export default function AppRoutes() {
           <Routes>
                {/* Public pages with navbar */}
                <Route element={<PublicLayout />}>
+                    <Route path="/" element={<HomePage />} />
                     <Route path="/courses" element={<CatalogPage />} />
                     <Route
                          path="/courses/:courseId"
@@ -49,7 +50,6 @@ export default function AppRoutes() {
                </Route>
 
                {/* Public pages */}
-               <Route path="/" element={<HomePage />} />
                <Route path="/login" element={<LoginPage />} />
                <Route path="/signup" element={<SignupPage />} />
                <Route path="/403" element={<ForbiddenPage />} />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import AuthLayout from "../../components/layout/AuthLayout.jsx";
 import Input from "../../components/common/Input.jsx";
 import Button from "../../components/common/Button.jsx";
@@ -19,13 +19,18 @@ const roles = [
 
 export default function SignupPage() {
      const { user, register } = useAuth();
+     const [searchParams] = useSearchParams();
+     // "Start teaching" links to /signup?role=instructor. Anything else starts as a student.
+     const initialRole =
+          searchParams.get("role") === "instructor" ? "instructor" : "student";
 
      const [form, setForm] = useState({
           name: "",
           email: "",
           password: "",
-          role: "student",
+          role: initialRole,
      });
+
      const [fieldErrors, setFieldErrors] = useState({});
      const [formError, setFormError] = useState("");
      const [submitting, setSubmitting] = useState(false);
