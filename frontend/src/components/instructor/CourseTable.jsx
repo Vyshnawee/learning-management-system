@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, Pencil, Star, Trash2 } from "lucide-react";
+import { Eye, ListTree, Pencil, Star, Trash2 } from "lucide-react";
 import CourseStatusBadge from "./CourseStatusBadge.jsx";
 import ProgressBar from "../common/ProgressBar.jsx";
 import Button from "../common/Button.jsx";
@@ -199,6 +199,18 @@ export default function CourseTable({
                                                             <Pencil size={15} />
                                                             Edit
                                                        </Link>
+                                                       <Link
+                                                            to={`/instructor/courses/${course.courseId}/curriculum`}
+                                                            className={
+                                                                 actionLink
+                                                            }
+                                                       >
+                                                            <ListTree
+                                                                 size={15}
+                                                            />
+                                                            Lessons
+                                                       </Link>
+
                                                        {manage && (
                                                             <>
                                                                  {course.status !==

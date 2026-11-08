@@ -24,6 +24,12 @@ import InstructorDashboardPage from "../pages/instructor/InstructorDashboardPage
 import InstructorCoursesPage from "../pages/instructor/InstructorCoursesPage.jsx";
 import CreateCoursePage from "../pages/instructor/CreateCoursePage.jsx";
 import EditCoursePage from "../pages/instructor/EditCoursePage.jsx";
+import CurriculumPage from "../pages/instructor/CurriculumPage.jsx";
+import InstructorStudentsPage from "../pages/instructor/InstructorStudentsPage.jsx";
+import InstructorQuizzesPage from "../pages/instructor/InstructorQuizzesPage.jsx";
+import InstructorAnalyticsPage from "../pages/instructor/InstructorAnalyticsPage.jsx";
+import QuizBuilderPage from "../pages/instructor/QuizBuilderPage.jsx";
+import ProfilePage from "../pages/shared/ProfilePage.jsx";
 
 export default function AppRoutes() {
      return (
@@ -72,10 +78,9 @@ export default function AppRoutes() {
                               path="/student/certificates"
                               element={<MyCertificatesPage />}
                          />
-
                          <Route
                               path="/student/profile"
-                              element={<ComingSoonPage title="Profile" />}
+                              element={<ProfilePage />}
                          />
                     </Route>
 
@@ -123,29 +128,31 @@ export default function AppRoutes() {
                          />
                          <Route
                               path="/instructor/courses/:courseId/curriculum"
-                              element={
-                                   <ComingSoonPage title="Sections and lessons" />
-                              }
+                              element={<CurriculumPage />}
                          />
-
                          <Route
                               path="/instructor/students"
-                              element={<ComingSoonPage title="Students" />}
+                              element={<InstructorStudentsPage />}
                          />
-
                          <Route
                               path="/instructor/quizzes"
-                              element={<ComingSoonPage title="Quizzes" />}
+                              element={<InstructorQuizzesPage />}
                          />
-
+                         <Route
+                              path="/instructor/quizzes/new"
+                              element={<QuizBuilderPage />}
+                         />
+                         <Route
+                              path="/instructor/quizzes/:quizId/edit"
+                              element={<QuizBuilderPage />}
+                         />
                          <Route
                               path="/instructor/analytics"
-                              element={<ComingSoonPage title="Analytics" />}
+                              element={<InstructorAnalyticsPage />}
                          />
-
                          <Route
                               path="/instructor/profile"
-                              element={<ComingSoonPage title="Profile" />}
+                              element={<ProfilePage />}
                          />
                     </Route>
                </Route>

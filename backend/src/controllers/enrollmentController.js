@@ -107,23 +107,36 @@ export const getCourseEnrollments = async (req, res) => {
      const { page, limit, skip } = getPagination(req.query, 20);
      const filter = { courseId: course._id };
 
-     const [enrollments, total, completedCount] = await Promise.all([
+     const [enrollments, total, completedCount, lessons] = await Promise.all([
           Enrollment.find(filter)
-               .select("-completedLessonIds")
                .populate({
                     path: "studentId",
                     select: "name email profileImage",
                })
-               .sort({ enrolledAt: -1 })
+               .sort({ enrolledAt: -1, _id: 1 })
                .skip(skip)
-               .limit(limit),
+               .limit(limit)
+               .lean(),
           Enrollment.countDocuments(filter),
           Enrollment.countDocuments({ ...filter, completedAt: { $ne: null } }),
+          Lesson.find({ courseId: course._id }).select("_id").lean(),
      ]);
+
+     // Count only lessons that still exist, and drop the long list of IDs from the response
+     const lessonIds = new Set(lessons.map((lesson) => String(lesson._id)));
+     const result = enrollments.map(
+          ({ completedLessonIds, ...enrollment }) => ({
+               ...enrollment,
+               lessonCount: lessonIds.size,
+               lessonsDone: completedLessonIds.filter((id) =>
+                    lessonIds.has(String(id)),
+               ).length,
+          }),
+     );
 
      res.status(200).json({
           success: true,
-          data: { enrollments, completedCount },
+          data: { enrollments: result, completedCount },
           pagination: buildPaginationMeta(total, page, limit),
      });
 };
@@ -158,7 +171,6 @@ export const getEnrollment = async (req, res) => {
 // Body: { "lessonId": "...", "completed": true }   ("completed" defaults to true)
 export const updateProgress = async (req, res) => {
      const { lessonId, completed = true } = req.body;
-
      const enrollment = await Enrollment.findById(req.params.enrollmentId);
 
      // 404 for someone else's enrollment, so we don't reveal that it exists

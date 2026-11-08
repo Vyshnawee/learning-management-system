@@ -12,3 +12,10 @@ export const getMyQuizResults = (quizId, signal) =>
 // data: { answers: [{ questionId, selectedOption }] }
 export const submitAttempt = (quizId, data) =>
      axiosClient.post(`/quizzes/${quizId}/attempts`, data);
+
+// Instructor: data = { title, description, passingScore, questions: [...] }
+export const createQuiz = (courseId, data) =>
+     axiosClient.post(`/courses/${courseId}/quizzes`, data);
+export const updateQuiz = (quizId, data) =>
+     axiosClient.patch(`/quizzes/${quizId}`, data);
+export const deleteQuiz = (quizId) => axiosClient.delete(`/quizzes/${quizId}`);

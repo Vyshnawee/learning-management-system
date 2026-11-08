@@ -16,3 +16,6 @@ export const setLastLesson = (enrollmentId, lessonId) =>
      axiosClient.patch(`/enrollments/${enrollmentId}/last-lesson`, {
           lessonId,
      });
+
+export const getCourseEnrollments = (courseId, params, signal) =>
+     axiosClient.get(`/courses/${courseId}/enrollments`, { params, signal });
