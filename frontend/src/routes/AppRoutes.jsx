@@ -30,6 +30,11 @@ import InstructorQuizzesPage from "../pages/instructor/InstructorQuizzesPage.jsx
 import InstructorAnalyticsPage from "../pages/instructor/InstructorAnalyticsPage.jsx";
 import QuizBuilderPage from "../pages/instructor/QuizBuilderPage.jsx";
 import ProfilePage from "../pages/shared/ProfilePage.jsx";
+import AdminDashboardPage from "../pages/admin/AdminDashboardPage.jsx";
+import AdminUsersPage from "../pages/admin/AdminUsersPage.jsx";
+import AdminCoursesPage from "../pages/admin/AdminCoursesPage.jsx";
+import AdminCategoriesPage from "../pages/admin/AdminCategoriesPage.jsx";
+import AdminEnrollmentsPage from "../pages/admin/AdminEnrollmentsPage.jsx";
 
 export default function AppRoutes() {
      return (
@@ -166,34 +171,25 @@ export default function AppRoutes() {
                                    <Navigate to="/admin/dashboard" replace />
                               }
                          />
-
                          <Route
                               path="/admin/dashboard"
-                              element={
-                                   <ComingSoonPage title="Admin dashboard" />
-                              }
+                              element={<AdminDashboardPage />}
                          />
-
                          <Route
                               path="/admin/users"
-                              element={<ComingSoonPage title="Users" />}
+                              element={<AdminUsersPage />}
                          />
-
                          <Route
                               path="/admin/courses"
-                              element={<ComingSoonPage title="Courses" />}
+                              element={<AdminCoursesPage />}
                          />
-
                          <Route
                               path="/admin/categories"
-                              element={<ComingSoonPage title="Categories" />}
+                              element={<AdminCategoriesPage />}
                          />
-
                          <Route
                               path="/admin/enrollments"
-                              element={
-                                   <ComingSoonPage title="Enrollment statistics" />
-                              }
+                              element={<AdminEnrollmentsPage />}
                          />
                     </Route>
                </Route>
